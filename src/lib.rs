@@ -1,20 +1,11 @@
-use ch569_pac::*;
+#![no_std]
 
-pub fn startup() {
-    ch569_pac::Peripherals::take();
-}
+use core::arch::global_asm;
 
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+global_asm!(
+r#"
+    .section .init, "ax"
+    .global _start_hal
+    _start_hal:
+"#
+);

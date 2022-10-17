@@ -1,13 +1,12 @@
 [package]
 name = "ch569-hal"
 version = "0.1.0"
-edition = "2021"
-
-[workspace]
-
-members = [
-  "ch569-pac"
+authors = [
+    "Matt Thompson <matt@boondocker.io>"
 ]
+edition = "2021"
+description  = "HAL for CH569 microcontrollers"
+license      = "MIT OR Apache-2.0"
 
 [dependencies]
 ch569-pac = { path = "ch569-pac", features=["critical-section"] }

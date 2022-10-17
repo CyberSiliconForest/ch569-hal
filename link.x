@@ -49,5 +49,5 @@ SECTIONS
 
         . = ALIGN(8);
         _ebss = .;
-    } > REGION_BSS
+    } > RAMS
 }

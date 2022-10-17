@@ -10,3 +10,4 @@ license      = "MIT OR Apache-2.0"
 
 [dependencies]
 ch569-pac = { path = "ch569-pac", features=["critical-section"] }
+riscv = "0.9.0"

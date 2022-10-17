@@ -1,0 +1,13 @@
+[package]
+name = "ch569-hal"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+
+members = [
+  "ch569-pac"
+]
+
+[dependencies]
+ch569-pac = { path = "ch569-pac", features=["critical-section"] }

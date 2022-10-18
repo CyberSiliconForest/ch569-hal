@@ -78,8 +78,12 @@ fn main() -> ! {
 
     let mut uart = ch569_hal::uart::Uart::new(peripherals.UART1, 115200, 120_000_000);
 
+    let mut count: u64 = 0;
+
     loop {
-        write!(uart, "Hello Rust\r\n").unwrap();
+        write!(uart, "Hello Rust {}\r\n", count).unwrap();
+
+        count += 1;
 
         delay();
 

@@ -7,6 +7,20 @@ authors = [
 edition = "2021"
 description  = "HAL for CH569 microcontrollers"
 license      = "MIT OR Apache-2.0"
+repository   = "https://github.com/boondockenergy/ch569-hal.git"
+
+keywords = [
+    "embedded",
+    "embedded-hal",
+    "wch",
+    "ch569",
+    "no-std",
+]
+categories = [
+    "embedded",
+    "hardware-support",
+    "no-std",
+]
 
 [dependencies]
 ch569-pac       = { path = "ch569-pac", features=["critical-section"] }

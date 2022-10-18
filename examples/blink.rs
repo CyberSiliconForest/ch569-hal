@@ -41,8 +41,9 @@ fn main() -> ! {
 
     peripherals.SYS.r8_clk_cfg_ctrl.write(|w| {
         unsafe {
-            w.bits(0x40);
-            w.rb_clk_sel_pll().set_bit()
+            w.bits(0x80)
+            .rb_clk_pll_sleep().clear_bit()
+            .rb_clk_sel_pll().set_bit()
         }
     });
 
@@ -75,10 +76,10 @@ fn main() -> ! {
     });
     */
 
-    //let mut uart = ch569_hal::uart::Uart::new(peripherals.UART1, 115200, 120000000);
+    let mut uart = ch569_hal::uart::Uart::new(peripherals.UART1, 115200, 120_000_000);
 
     loop {
-        //write!(uart, "Hello\r\n").unwrap();
+        write!(uart, "Hello Rust\r\n").unwrap();
 
         delay();
 

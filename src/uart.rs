@@ -12,15 +12,14 @@ impl Uart {
     pub fn new(uart: UART1, baud: u32, sysclk: u32) -> Self {
 
         // Divisor latch
-        //let dl: u32 = ((10 * sysclk * 2 / 16 / baud) + 5) / 10;
-        // 131 for 115200 at 120MHz
+        let divisor_latch: u32 = ((10 * sysclk * 2 / 16 / baud) + 5) / 10;
 
         uart.r8_uart1_div.write(|w| {
             unsafe {w.bits(1)}
         });
 
         uart.r16_uart1_dl.write(|w| {
-            unsafe {w.bits(131)}
+            unsafe {w.bits(divisor_latch.try_into().unwrap())}
         });
 
         uart.r8_uart1_fcr.write(|w| {

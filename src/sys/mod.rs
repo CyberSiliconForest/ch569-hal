@@ -1,4 +1,5 @@
 use ch569_pac::SYS;
+use critical_section;
 
 pub enum PllClockSource {
     Internal480MHz,
@@ -56,55 +57,60 @@ impl System {
 
 impl System {
     pub fn port_set_dir(&self, port: GpioPort, pin: u32, output: bool) {
+        critical_section::with(|_cs| {
+            let mut dir = match port {
+                GpioPort::PA => self.sys.r32_pa_dir.read().bits(),
+                GpioPort::PB => self.sys.r32_pb_dir.read().bits(),
+            };
 
-        let mut dir = match port {
-            GpioPort::PA => self.sys.r32_pa_dir.read().bits(),
-            GpioPort::PB => self.sys.r32_pb_dir.read().bits(),
-        };
+            if output == true {
+                dir |= 1 << pin;
+            } else {
+                dir &= !(1 << pin);
+            }
 
-        if output == true {
-            dir |= 1 << pin;
-        } else {
-            dir &= !(1 << pin);
-        }
-
-        match port {
-            GpioPort::PA => self.sys.r32_pa_dir.write(|w| {unsafe{w.bits(dir)}}),
-            GpioPort::PB => self.sys.r32_pb_dir.write(|w| {unsafe{w.bits(dir)}}),
-        }
+            match port {
+                GpioPort::PA => self.sys.r32_pa_dir.write(|w| {unsafe{w.bits(dir)}}),
+                GpioPort::PB => self.sys.r32_pb_dir.write(|w| {unsafe{w.bits(dir)}}),
+            }
+        });
     }
 
     // Set slew rate on output, schmitt trigger on input
     pub fn port_set_smt(&self, port: GpioPort, pin: u32, enable: bool) {
-        let mut smt = match port {
-            GpioPort::PA => self.sys.r32_pa_smt.read().bits(),
-            GpioPort::PB => self.sys.r32_pb_smt.read().bits()
-        };
+        critical_section::with(|_cs| {
+            let mut smt = match port {
+                GpioPort::PA => self.sys.r32_pa_smt.read().bits(),
+                GpioPort::PB => self.sys.r32_pb_smt.read().bits()
+            };
 
-        if enable == true {
-            smt |= 1 << pin;
-        } else {
-            smt &= !(1 << pin);
-        }
+            if enable == true {
+                smt |= 1 << pin;
+            } else {
+                smt &= !(1 << pin);
+            }
 
-        match port {
-            GpioPort::PA => self.sys.r32_pa_smt.write(|w| {unsafe{w.bits(smt)}}),
-            GpioPort::PB => self.sys.r32_pb_smt.write(|w| {unsafe{w.bits(smt)}}),
-        }
+            match port {
+                GpioPort::PA => self.sys.r32_pa_smt.write(|w| {unsafe{w.bits(smt)}}),
+                GpioPort::PB => self.sys.r32_pb_smt.write(|w| {unsafe{w.bits(smt)}}),
+            }
+        });
     }
 
     pub fn port_out_set(&self, port: GpioPort, pin: u32) {
-        let mut out = match port {
-            GpioPort::PA => self.sys.r32_pa_out.read().bits(),
-            GpioPort::PB => self.sys.r32_pb_out.read().bits()
-        };
+        critical_section::with(|_cs| {
+            let mut out = match port {
+                GpioPort::PA => self.sys.r32_pa_out.read().bits(),
+                GpioPort::PB => self.sys.r32_pb_out.read().bits()
+            };
 
-        out |= 1 << pin;
+            out |= 1 << pin;
 
-        match port {
-            GpioPort::PA => self.sys.r32_pa_out.write(|w| {unsafe{w.bits(out)}}),
-            GpioPort::PB => self.sys.r32_pb_out.write(|w| {unsafe{w.bits(out)}})
-        }
+            match port {
+                GpioPort::PA => self.sys.r32_pa_out.write(|w| {unsafe{w.bits(out)}}),
+                GpioPort::PB => self.sys.r32_pb_out.write(|w| {unsafe{w.bits(out)}})
+            }
+        });
     }
 
     pub fn port_out_clear(&self, port: GpioPort, pin: u32) {

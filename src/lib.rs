@@ -1,7 +1,11 @@
 #![no_std]
 #![feature(naked_functions)]
 
+pub mod sys;
 pub mod uart;
+
+pub use ch569_pac as pac;
+pub use sys::System;
 
 use core::arch::asm;
 use critical_section::{RawRestoreState};

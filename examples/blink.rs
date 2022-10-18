@@ -7,6 +7,8 @@ use riscv_rt::entry;
 use ch569_pac::Peripherals;
 use core::fmt::{Write};
 
+use ch569_hal::sys::GpioPort;
+
 #[inline(never)]
 fn delay() {
     for _ in 0..1_000_000 {
@@ -18,67 +20,28 @@ fn delay() {
 fn main() -> ! {
     let peripherals = Peripherals::take().unwrap();
 
+    let sys = ch569_hal::System::new(peripherals.SYS);
 
-    // Enter "safe access mode"
-    peripherals.SYS.r8_safe_access_sig.write(|w| {
-        unsafe {
-            w.bits(0x57)
-        }
-    });
- 
-    peripherals.SYS.r8_safe_access_sig.write(|w| {
-        unsafe {
-            w.bits(0xA8)
-        }
-    });
+    sys.safe_access(true);
+    sys.set_pll_div(4);
+    sys.set_pll_source(ch569_hal::sys::PllClockSource::Internal480MHz);
+    sys.safe_access(false);
 
-    // Set PLL to 120MHz
-    peripherals.SYS.r8_clk_pll_div.write(|w| {
-        unsafe {
-            w.bits(0x40 | 0x04)
-        }
-    });
-
-    peripherals.SYS.r8_clk_cfg_ctrl.write(|w| {
-        unsafe {
-            w.bits(0x80)
-            .rb_clk_pll_sleep().clear_bit()
-            .rb_clk_sel_pll().set_bit()
-        }
-    });
-
-    // Exit safe access mode
-    peripherals.SYS.r8_safe_access_sig.write(|w| {
-        unsafe {
-            w.bits(0x0)
-        }
-    });
-
-
-    //R32_PA_SMT |= (1<<8) |(1<<7); // PA8 TXD1 & PA7 RXD1
-    peripherals.SYS.r32_pa_smt.write(|w| {
-        unsafe { w.bits(1<<8 | (1<<7)) }
-    });
-  
-    // Make LED and UART1 TX outputs
-    peripherals.SYS.r32_pa_dir.write(|w| {
-        unsafe {
-            w.bits(1<<15 | 1<<8)
-        }
-    });
-
-    // Enable open drain
-    /*   
-    peripherals.SYS.r32_pa_pd.write(|w| {
-        unsafe {
-            w.bits(1<<15)
-        }
-    });
-    */
+    sys.port_set_dir(GpioPort::PA, 8, true);
 
     let mut uart = ch569_hal::uart::Uart::new(peripherals.UART1, 115200, 120_000_000);
+    write!(uart, "Hello Rust\r\n").unwrap();
 
+    /*
+    // Set UART1 low slope output and schmitt trigger input
+    sys.port_set_smt(GpioPort::PA, 7, true);
+    sys.port_set_smt(GpioPort::PA, 8, true);
+    */
+ 
     let mut count: u64 = 0;
+
+    // Set LED pin to output
+    sys.port_set_dir(GpioPort::PA, 15, true);
 
     loop {
         write!(uart, "Hello Rust {}\r\n", count).unwrap();
@@ -87,18 +50,10 @@ fn main() -> ! {
 
         delay();
 
-        peripherals.SYS.r32_pa_out.write(|w| {
-            unsafe {
-                w.bits(1<<15)
-            }
-        });
+        sys.port_out_set(GpioPort::PA, 15);
 
         delay();
-        
-        peripherals.SYS.r32_pa_clr.write(|w| {
-            unsafe {
-                w.bits(1<<15)
-            }
-        });
+
+        sys.port_out_clear(GpioPort::PA, 15);
     }
 }

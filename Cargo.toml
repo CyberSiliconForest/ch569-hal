@@ -1,6 +1,6 @@
 [package]
 name = "ch569-hal"
-version = "0.1.0"
+version = "0.0.1"
 authors = [
     "Matt Thompson <matt@boondocker.io>"
 ]
@@ -9,5 +9,8 @@ description  = "HAL for CH569 microcontrollers"
 license      = "MIT OR Apache-2.0"
 
 [dependencies]
-ch569-pac = { path = "ch569-pac", features=["critical-section"] }
-riscv = "0.9.0"
+ch569-pac       = { path = "ch569-pac", features=["critical-section"] }
+critical-section = { version = "1.1.1", features = ["restore-state-bool"] }
+embedded-hal = "0.2.7"
+riscv           = "0.9.0"
+riscv-rt = { git = "https://github.com/rust-embedded/riscv-rt.git", version = "0.9.0" }
